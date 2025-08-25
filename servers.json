@@ -1,0 +1,14 @@
+{
+    "example_json": {
+        "path": "/path/to/server/folder",
+        "servername": "example",
+        "startcommand": "screen -S example java -Xmx1024M -Xms512M -jar /path/to/server/spigot-1.18.2.jar nogui"
+    },
+    "servers": [
+        {
+            "path": "",
+            "servername": "testserver1",
+            "startcommand": "./startserver.sh"
+        }
+    ]
+}
