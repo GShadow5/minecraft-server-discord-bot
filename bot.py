@@ -86,6 +86,7 @@ async def startserver(ctx, *args):
     if server is None:
         await ctx.send("Server not found.")
         return
+    
     # Start the server
     await ctx.send("Starting server, please wait...")
     path = BASE_PATH + server['path'] if BASE_PATH else server['path']
@@ -103,6 +104,76 @@ async def startserver(ctx, *args):
         return
     await ctx.send("Server started.")
     await ctx.send(stdout)
+    global active_server
+    active_server = servername
+
+@bot.command()
+async def stopserver(ctx, *args):
+    # Check if the user is an admin
+    if not ctx.author.guild_permissions.administrator:
+        await ctx.send("You don't have permission to run this command.")
+        return
+    # Stop the server
+    await ctx.send("Stopping server...")
+    process = subprocess.Popen(f"screen -S {active_server} -p 0 -X stuff 'stop\n'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    stdout, stderr = process.communicate()
+    await ctx.send(stdout)
+    await ctx.send("Server stopped.")
+    global active_server
+    active_server = None
+
+@bot.command()
+async def list(ctx):
+    # Load server data from json
+    servers = None
+    with open('servers.json', 'r') as f:
+        servers = json.load(f)
+        servers = servers['servers']
+    if servers is None:
+        await ctx.send("No servers found in the servers.json file.")
+        return
+    
+    # Get the currently running screens
+    process = subprocess.Popen(f"screen -ls", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    stdout, stderr = process.communicate()
+
+    # Get the currently active server
+    currentservers = []
+    for s in servers:
+        if s['servername'] in stdout:
+            currentservers.append(s)
+    if len(currentservers) == 0:
+        await ctx.send("No server is currently active.")
+        active_server = None
+    elif len(currentservers) > 1:
+        await ctx.send("Multiple servers are currently active. This should not happen. Please report this to the server owner.")
+        await ctx.send(f"Currently active servers: {', '.join([s['servername'] for s in currentservers])}")
+        active_server = None
+    else:
+        await ctx.send(f"Server {currentservers[0]['servername']} is currently active.")
+    if currentservers[0]['servername'] != active_server:
+        active_server = currentservers[0]['servername']
+    
+    # List the available servers
+    listofservers = f'Available servers: {"\n".join([s["servername"] for s in servers])}'
+    await ctx.send(listofservers)
+
+@bot.command()
+async def forcestopserver(ctx, *args):
+    # Check if the user is an admin
+    if not ctx.author.guild_permissions.administrator:
+        await ctx.send("You don't have permission to run this command.")
+        return
+    # Stop the server
+    await ctx.send("Stopping server...")
+    process = subprocess.Popen(f"screen -S {active_server} -p 0 -X stuff $'\003'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    process = subprocess.Popen(f"screen -S {active_server} -p 0 -X stuff $'\003'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    process = subprocess.Popen(f"screen -S {active_server} -p 0 -X stuff $'\003'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    stdout, stderr = process.communicate()
+    await ctx.send(stdout)
+    await ctx.send("Server stopped.")
+    global active_server
+    active_server = None
 
 @bot.command()
 async def ping(ctx):
