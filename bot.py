@@ -288,7 +288,7 @@ async def send_message(message):
         await message.channel.send("No server is currently active.")
         return
     minecraft_message = "[" + message.author.name + "] " + message.content
-    process = subprocess.Popen(f"screen -S {active_server} -p 0 -X stuff '{minecraft_message}\n'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    process = subprocess.Popen(f"screen -S {active_server} -p 0 -X stuff 'say {minecraft_message}\n'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     stdout, stderr = process.communicate()
 
 
