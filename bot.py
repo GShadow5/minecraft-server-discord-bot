@@ -259,6 +259,26 @@ async def _stop_server_internal(ctx, servername, method):
 
     active_server = None # Clear active server state
 
+async def connect_to_existing_pipe():
+    global active_server, active_server_pipe_task
+    # Get list of servers
+    with open('servers.json', 'r') as f:
+        servers = json.load(f)
+        servers = servers['servers']
+    
+    # Get list of active screens
+    screen_cmd = "screen -ls"
+    process = subprocess.Popen(screen_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    stdout, stderr = process.communicate()
+
+    # Check for existing pipes
+    for server in servers:
+        if server['servername'] in stdout:
+            active_server = server['servername']
+            if os.path.exists(_get_pipe_path(active_server)):
+                await _read_from_pipe(active_server)
+                return
+
 '''
 
 
@@ -273,6 +293,7 @@ async def _stop_server_internal(ctx, servername, method):
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user})')
+    await connect_to_existing_pipe()
 
 @bot.event
 async def on_message(message):
@@ -500,7 +521,7 @@ async def reloadregex(ctx):
     with open('config.json', 'r') as f:
         config = json.load(f)
         for regex in config['config']['regex']:
-            regex_list.append(regex['match'])
+            regex_list.append(re.compile(regex['match']))
             fprint_list.append(regex['capture'])
     await ctx.send("Regex reloaded.")
 
