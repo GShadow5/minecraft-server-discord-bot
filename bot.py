@@ -41,13 +41,14 @@ async def on_message(message):
         return
     if message.channel.name == chat_channel and not message.content.startswith(command_prefix):
         if not active_server:
-            await ("No server is currently active.")
+            await message.channel.send("No server is currently active.")
             return
         await send_message(message)
     if message.channel.name == command_channel and message.content.startswith(command_prefix):
         await bot.process_commands(message)
 
 async def send_message(message):
+    global active_server
     if not active_server:
         await message.channel.send("No server is currently active.")
         return
@@ -60,6 +61,7 @@ async def send_message(message):
 '''
 @bot.command()
 async def startserver(ctx, *args):
+    global active_server
     # Check if the user is an admin
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You don't have permission to run this command.")
@@ -104,11 +106,11 @@ async def startserver(ctx, *args):
         return
     await ctx.send("Server started.")
     await ctx.send(stdout)
-    global active_server
     active_server = servername
 
 @bot.command()
 async def stopserver(ctx, *args):
+    global active_server
     # Check if the user is an admin
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You don't have permission to run this command.")
@@ -119,11 +121,11 @@ async def stopserver(ctx, *args):
     stdout, stderr = process.communicate()
     await ctx.send(stdout)
     await ctx.send("Server stopped.")
-    global active_server
     active_server = None
 
 @bot.command()
 async def list(ctx):
+    global active_server
     # Load server data from json
     servers = None
     with open('servers.json', 'r') as f:
@@ -151,15 +153,16 @@ async def list(ctx):
         active_server = None
     else:
         await ctx.send(f"Server {currentservers[0]['servername']} is currently active.")
-    if currentservers[0]['servername'] != active_server:
+    if len(currentservers) > 0 and currentservers[0]['servername'] != active_server:
         active_server = currentservers[0]['servername']
     
     # List the available servers
-    listofservers = f'Available servers: {"\n".join([s["servername"] for s in servers])}'
+    listofservers = 'Available servers: '+ "\n".join([s["servername"] for s in servers])
     await ctx.send(listofservers)
 
 @bot.command()
 async def forcestopserver(ctx, *args):
+    global active_server
     # Check if the user is an admin
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You don't have permission to run this command.")
@@ -172,7 +175,6 @@ async def forcestopserver(ctx, *args):
     stdout, stderr = process.communicate()
     await ctx.send(stdout)
     await ctx.send("Server stopped.")
-    global active_server
     active_server = None
 
 @bot.command()
