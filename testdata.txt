@@ -1,0 +1,13 @@
+[26Aug2025 00:10:14.772] [Server thread/INFO] [patchouli/]: Sending reload packet to clients
+[26Aug2025 00:10:14.776] [Server thread/WARN] [ModernFix/]: Dedicated server took 125.256 seconds to load
+[26Aug2025 00:10:14.867] [Server thread/WARN] [minecolonies/]: Starting Compat Discovery
+[26Aug2025 00:10:15.307] [Server thread/INFO] [minecolonies/]: Finished discovering Ores 387 359
+[26Aug2025 00:10:15.307] [Server thread/INFO] [minecolonies/]: Finished discovering saplings 312
+[26Aug2025 00:25:15.983] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: <61616> hello
+[26Aug2025 00:25:30.709] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: [Server] hello back
+[26Aug2025 00:25:47.209] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: You whisper to 61616: nice
+[26Aug2025 00:27:05.873] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: [61616: Set the time to 18206]
+[26Aug2025 00:30:20.632] [Server thread/INFO] [AllTheLeaks/]: Listing events...
+[26Aug2025 00:30:20.632] [Server thread/INFO] [AllTheLeaks/]: Listing memory leaks so far...
+[26Aug2025 00:30:20.632] [Server thread/INFO] [AllTheLeaks/]: B: 2025MB / C: 2539MB / Diff: +514MB
+\[(.*?)\].*INFO.*\]: <(.*)> (.*)
