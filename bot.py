@@ -39,19 +39,20 @@ async def on_message(message):
     print(f'Message from {message.author}: {message.content}')
     if message.author == bot.user:
         return
-    if message.channel.name == chat_channel:
+    if message.channel.name == chat_channel and not message.content.startswith(command_prefix):
         if not active_server:
             await ("No server is currently active.")
             return
         await send_message(message)
-    await bot.process_commands(message)
+    if message.channel.name == command_channel and message.content.startswith(command_prefix):
+        await bot.process_commands(message)
 
 async def send_message(message):
     if not active_server:
         await message.channel.send("No server is currently active.")
         return
     minecraft_message = "[" + message.author.name + "] " + message.content
-    process = subprocess.Popen(f"screen -S {active_server} -p 0 -X stuff '{minecraft_message}'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    process = subprocess.Popen(f"screen -S {active_server} -p 0 -X stuff '{minecraft_message}\n'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     stdout, stderr = process.communicate()
 
 '''
