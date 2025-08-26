@@ -33,7 +33,7 @@ active_server_pipe_task = None # To hold the asyncio task that reads from the pi
 # This pattern captures the timestamp, log level, player name, and the message itself.
 # Adjust if your server log format is different (e.g., if you use plugins that change output).
 MINECRAFT_CHAT_REGEX = re.compile(
-    r"^\[(\d{2}:\d{2}:\d{2}) INFO\]: <([^>]+)> (.*)$"
+    r"^\[(.*?)\].*INFO.*\]: <(.*)> (.*)$"
 )
 
 '''
