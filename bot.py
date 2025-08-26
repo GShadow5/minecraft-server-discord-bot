@@ -12,16 +12,20 @@ load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 BASE_PATH = os.getenv('BASE_PATH', './')
-FILE_REGEX = os.getenv('FILE_REGEX', 'false')
 
 chat_channel = None
 command_channel = None
 command_prefix = None
+regex_list = []
+fprint_list = []
 with open('config.json', 'r') as f:
     config = json.load(f)
     chat_channel = config['config']['chat_channel']
     command_channel = config['config']['command_channel']
     command_prefix = config['config']['command_prefix']
+    for regex in config['config']['regex']:
+        regex_list.append(re.compile(regex['match']))
+        fprint_list.append(regex['capture'])
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -30,12 +34,7 @@ bot = commands.Bot(command_prefix=command_prefix, intents=intents)
 active_server = None
 active_server_pipe_task = None # To hold the asyncio task that reads from the pipe
 
-# Regex for parsing Minecraft chat messages
-# This pattern captures the timestamp, log level, player name, and the message itself.
-# Adjust if your server log format is different (e.g., if you use plugins that change output).
-MINECRAFT_CHAT_REGEX = re.compile(
-    r"\[(.*?)\].*INFO.*\]: <(.*)> (.*)"
-)
+
 
 '''
 
@@ -499,6 +498,25 @@ async def forcestopserver(ctx):
         await ctx.send("No server is currently active.")
         return
     await _stop_server_internal(ctx, active_server, "forcestop")
+
+@bot.command()
+async def reloadregex(ctx):
+    '''
+    Reload the regex for the server
+
+    '''
+    global regex_list, fprint_list
+    if not ctx.author.guild_permissions.administrator:
+        await ctx.send("You don't have permission to run this command.")
+        return
+    regex_list = []
+    fprint_list = []
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+        for regex in config['config']['regex']:
+            regex_list.append(regex['match'])
+            fprint_list.append(regex['capture'])
+    await ctx.send("Regex reloaded.")
 
 @bot.command()
 async def ping(ctx):
