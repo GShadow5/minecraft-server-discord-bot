@@ -1,0 +1,7 @@
+{
+    "config": {
+        "chat_channel": "minecraft",
+        "command_channel": "minecraft",
+        "command_prefix": "!"
+    }
+}

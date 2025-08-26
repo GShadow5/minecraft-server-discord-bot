@@ -12,10 +12,24 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 BASE_PATH = os.getenv('BASE_PATH', './')
 print(TOKEN)
 
+chat_channel = None
+command_channel = None
+command_prefix = None
+with open('config.json', 'r') as f:
+    config = json.load(f)
+    chat_channel = config['config']['chat_channel']
+    command_channel = config['config']['command_channel']
+    command_prefix = config['config']['command_prefix']
+
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix=command_prefix, intents=intents)
 
+active_server = None
+
+'''
+    Handle events (messages mostly)
+'''
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user})')
@@ -23,15 +37,26 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     print(f'Message from {message.author}: {message.content}')
+    if message.author == bot.user:
+        return
+    if message.channel.name == chat_channel:
+        if not active_server:
+            await ("No server is currently active.")
+            return
+        await send_message(message)
     await bot.process_commands(message)
 
-@bot.command()
-async def mc(ctx, *args):
-    command = ' '.join(args)
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+async def send_message(message):
+    if not active_server:
+        await message.channel.send("No server is currently active.")
+        return
+    minecraft_message = "[" + message.author.name + "] " + message.content
+    process = subprocess.Popen(f"screen -S {active_server} -p 0 -X stuff '{minecraft_message}'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     stdout, stderr = process.communicate()
-    await ctx.send(stdout)
 
+'''
+    Handle commands
+'''
 @bot.command()
 async def startserver(ctx, *args):
     # Check if the user is an admin
@@ -85,6 +110,5 @@ async def ping(ctx):
 @bot.command()
 async def botstop(ctx):
     await bot.close()
-
 
 bot.run(TOKEN)
