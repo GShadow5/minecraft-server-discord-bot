@@ -1,3 +1,4 @@
 .env
 servers.json
 config.json
+/__pycache__/
