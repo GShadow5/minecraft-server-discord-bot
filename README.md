@@ -16,7 +16,7 @@ Commands:
 Add running server check to prevent multiple servers running
 -Add list command to see currently running servers
 -Add server stop command
-Add server command command
+-Add server command command
 Add server message passthrough
-Add help command
+-Add help command
 -Add discord message passthrough

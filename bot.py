@@ -61,6 +61,12 @@ async def send_message(message):
 '''
 @bot.command()
 async def startserver(ctx, *args):
+    '''
+    Start a server
+    args:
+        servername: The name of the server
+
+    '''
     global active_server
     # Check if the user is an admin
     if not ctx.author.guild_permissions.administrator:
@@ -109,7 +115,11 @@ async def startserver(ctx, *args):
     active_server = servername
 
 @bot.command()
-async def stopserver(ctx, *args):
+async def stopserver(ctx):
+    '''
+    Stop the server by sending 'stop' to the server
+
+    '''
     global active_server
     # Check if the user is an admin
     if not ctx.author.guild_permissions.administrator:
@@ -124,7 +134,29 @@ async def stopserver(ctx, *args):
     active_server = None
 
 @bot.command()
+async def command(ctx, *args):
+    '''
+    Send a command to the server
+    args:
+        command: The command to send
+
+    '''
+    global active_server
+    # Check if the user is an admin
+    if not ctx.author.guild_permissions.administrator:
+        await ctx.send("You don't have permission to run this command.")
+        return
+    # Send the command to the server
+    await ctx.send("Sending command...")
+    command = " ".join(args)
+    subprocess.Popen(f"screen -S {active_server} -p 0 -X stuff '{command}\n'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+
+@bot.command()
 async def list(ctx):
+    '''
+    Lists currently running server and available servers
+
+    '''
     global active_server
     # Load server data from json
     servers = None
@@ -161,7 +193,11 @@ async def list(ctx):
     await ctx.send(listofservers)
 
 @bot.command()
-async def forcestopserver(ctx, *args):
+async def forcestopserver(ctx):
+    '''
+    Force stop the server by sending keyboard interrupt
+
+    '''
     global active_server
     # Check if the user is an admin
     if not ctx.author.guild_permissions.administrator:
@@ -179,10 +215,25 @@ async def forcestopserver(ctx, *args):
 
 @bot.command()
 async def ping(ctx):
+    '''
+    Ping the bot
+
+    '''
     await ctx.send('Pong!')
+
+# @bot.command()
+# async def help(ctx):
+#     string = "Available commands:\n"
+#     for command in bot.commands:
+#         string += f"{command.name}: {command.description}\n"
+#     await ctx.send(string)
 
 @bot.command()
 async def botstop(ctx):
+    '''
+    Stop the bot
+
+    '''
     await bot.close()
 
 bot.run(TOKEN)
