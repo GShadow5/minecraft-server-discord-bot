@@ -89,6 +89,7 @@ async def _read_from_pipe(servername, channel_id, bot_instance):
     if not channel:
         print(f"Error: Discord channel with ID {channel_id} not found.")
         return
+    print(f"Sending to channel {channel_id}")
 
     print(f"Attempting to open named pipe for reading: {pipe_path}")
     try:
@@ -171,7 +172,8 @@ async def _read_from_pipe(servername, channel_id, bot_instance):
                 # Limit message length for Discord if necessary
                 if len(discord_message) > 2000:
                     discord_message = discord_message[:1997] + "..."
-                await channel.send(discord_message)
+                print(discord_message)
+                await bot.loop.create_task(channel.send(discord_message))
             # else:
             #     # Optionally, you can log other server output to a debug channel or console
             #     print(f"Non-chat output: {line}")
