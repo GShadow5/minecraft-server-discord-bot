@@ -2,6 +2,13 @@
     "config": {
         "chat_channel": "testchatchannel",
         "command_channel": "testchatchannel",
-        "command_prefix": "!"
+        "command_prefix": "!",
+        "regex": [
+            {
+                "type": "groups",
+                "match": "\\[(.*?)\\].*INFO.*\\]: <(.*)> (.*)",
+                "capture": "**[{groups[0]}]**: {groups[2]}"
+            }
+        ]
     }
 }

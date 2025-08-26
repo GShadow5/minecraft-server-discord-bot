@@ -12,6 +12,7 @@ load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 BASE_PATH = os.getenv('BASE_PATH', './')
+FILE_REGEX = os.getenv('FILE_REGEX', 'false')
 
 chat_channel = None
 command_channel = None
@@ -164,11 +165,28 @@ async def _read_from_pipe(servername, channel_id, bot_instance):
                 continue
 
             # print(f"Raw server output: {line}") # Debugging raw output
-
-            match = MINECRAFT_CHAT_REGEX.match(line)
+                
+            
+            regex = None
+            capture = None
+            if (FILE_REGEX):
+                try:
+                    with open('config.json', 'r') as f:
+                        config = json.load(f)
+                        tempregex = config['config']['regex'][0]['match']
+                        regex = re.compile(tempregex)
+                        capture = config['config']['regex'][0]['capture']
+                except Exception as e:
+                    print(f"Error in regex compilation for {servername}: {e}")
+                    regex = MINECRAFT_CHAT_REGEX
+                    capture = "**[{groups[0]}]**: {groups[2]}"
+            else:
+                regex = MINECRAFT_CHAT_REGEX
+                capture = "**[{groups[0]}]**: {groups[2]}"
+            match = regex.match(line)
             if match:
-                timestamp, player_name, message_content = match.groups()
-                discord_message = f"**[{player_name}]**: {message_content}"
+                groups = match.groups()
+                discord_message = capture.format(groups=groups)
                 # Limit message length for Discord if necessary
                 if len(discord_message) > 2000:
                     discord_message = discord_message[:1997] + "..."
