@@ -12,7 +12,6 @@ load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 BASE_PATH = os.getenv('BASE_PATH', './')
-print(TOKEN)
 
 chat_channel = None
 command_channel = None
