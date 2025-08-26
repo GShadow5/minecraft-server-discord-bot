@@ -198,7 +198,7 @@ async def _stop_server_internal(ctx, servername, method):
     '''
     global active_server, active_server_pipe_task
 
-    if not ctx.author.guild_permissions.administrator:
+    if not ctx.author.guild_permissions.administrator and method == "forcestop":
         await ctx.send("You don't have permission to run this command.")
         return
     
@@ -492,9 +492,22 @@ async def ping(ctx):
 @bot.command()
 async def botstop(ctx):
     '''
-    Stop the bot
-
+    Stop the bot and clean up
     '''
+    global active_server, active_server_pipe_task
+
+    if active_server_pipe_task:
+        active_server_pipe_task.cancel()
+        try:
+            await active_server_pipe_task # Await to ensure it cleans up
+        except asyncio.CancelledError:
+            pass # Expected
+        active_server_pipe_task = None
+
+    if active_server:
+        await _delete_named_pipe(active_server) # Delete the pipe file
+    
+    
     await bot.close()
 
 bot.run(TOKEN)
