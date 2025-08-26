@@ -164,36 +164,22 @@ async def _read_from_pipe(servername, channel_id, bot_instance):
                 continue
 
             # print(f"Raw server output: {line}") # Debugging raw output
-                
-            
-            regex = None
-            capture = None
-            if (FILE_REGEX):
-                try:
-                    with open('config.json', 'r') as f:
-                        config = json.load(f)
-                        tempregex = config['config']['regex'][0]['match']
-                        regex = re.compile(tempregex)
-                        capture = config['config']['regex'][0]['capture']
-                except Exception as e:
-                    print(f"Error in regex compilation for {servername}: {e}")
-                    regex = MINECRAFT_CHAT_REGEX
-                    capture = "**[{groups[0]}]**: {groups[2]}"
-            else:
-                regex = MINECRAFT_CHAT_REGEX
-                capture = "**[{groups[0]}]**: {groups[2]}"
-            match = regex.match(line)
-            if match:
-                groups = match.groups()
-                discord_message = capture.format(groups=groups)
-                # Limit message length for Discord if necessary
-                if len(discord_message) > 2000:
-                    discord_message = discord_message[:1997] + "..."
-                print(discord_message)
-                await bot.loop.create_task(channel.send(discord_message))
-            # else:
-            #     # Optionally, you can log other server output to a debug channel or console
-            #     print(f"Non-chat output: {line}")
+            global regex_list
+            global fprint_list
+            for i in range(len(regex_list)):
+                match = regex_list[i].match(line)
+                if match:
+                    groups = match.groups()
+                    discord_message = fprint_list[i].format(groups=groups)
+                    # Limit message length for Discord if necessary
+                    if len(discord_message) > 2000:
+                        discord_message = discord_message[:1997] + "..."
+                    print(discord_message)
+                    await bot.loop.create_task(channel.send("Message sending..."))
+                    await bot.loop.create_task(channel.send(discord_message))
+                # else:
+                #     # Optionally, you can log other server output to a debug channel or console
+                #     print(f"Non-chat output: {line}")
 
             await asyncio.sleep(0.01) # Small delay to yield control and avoid busy-waiting
 
