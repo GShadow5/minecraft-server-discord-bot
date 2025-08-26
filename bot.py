@@ -362,7 +362,7 @@ async def startserver(ctx, *args):
 
     screen_cmd = (
         f"cd {path} && "
-        f"screen -dmS {servername} bash -c \"{server['startcommand']} > {pipe_path}\""
+        f"screen -dmS {servername} bash -c \"{server['startcommand']} | tee {pipe_path}\""
     )
 
     #command = f"cd {path} && screen -dmS {servername} {server['startcommand']}"
