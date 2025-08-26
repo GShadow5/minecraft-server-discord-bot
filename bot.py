@@ -260,7 +260,7 @@ async def _stop_server_internal(ctx, servername, method):
     active_server = None # Clear active server state
 
 async def connect_to_existing_pipe():
-    global active_server, active_server_pipe_task
+    global active_server, active_server_pipe_task, chat_channel, bot
     # Get list of servers
     with open('servers.json', 'r') as f:
         servers = json.load(f)
@@ -276,7 +276,7 @@ async def connect_to_existing_pipe():
         if server['servername'] in stdout:
             active_server = server['servername']
             if os.path.exists(_get_pipe_path(active_server)):
-                await _read_from_pipe(active_server)
+                await _read_from_pipe(active_server, chat_channel, bot)
                 return
 
 '''
