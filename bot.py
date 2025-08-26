@@ -81,6 +81,11 @@ async def startserver(ctx, *args):
         return
     servername = args[0]
 
+    # Check if the server is already running
+    if active_server is not None:
+        await ctx.send("A server is already running. If you think this is an error, run !list to refresh the list of servers and try again.")
+        return
+
     # Load server data from json
     with open('servers.json', 'r') as f:
         servers = json.load(f)
