@@ -274,7 +274,6 @@ async def _stop_server_internal(ctx, servername, method):
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user})')
-    await connect_to_existing_pipe()
 
 @bot.event
 async def on_message(message):
