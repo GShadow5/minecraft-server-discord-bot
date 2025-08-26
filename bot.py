@@ -211,7 +211,7 @@ async def _stop_server_internal(ctx, servername, method):
     if method == "stop":
         command_to_send = 'stop\n'
     elif method == "forcestop":
-        command_to_send = "$'\\003'" # Ctrl+C
+        command_to_send = "$'\003'" # Ctrl+C
     else:
         await ctx.send("Invalid stop method.")
         return
@@ -496,18 +496,11 @@ async def botstop(ctx):
     '''
     global active_server, active_server_pipe_task
 
-    if active_server_pipe_task:
-        active_server_pipe_task.cancel()
-        try:
-            await active_server_pipe_task # Await to ensure it cleans up
-        except asyncio.CancelledError:
-            pass # Expected
-        active_server_pipe_task = None
-
-    if active_server:
-        await _delete_named_pipe(active_server) # Delete the pipe file
-    
+    if active_server is not None:
+        await ctx.send(f"Server running, please stop the server before stopping the bot.")
+        return
     
     await bot.close()
+    print("Bot stopped.")
 
 bot.run(TOKEN)
