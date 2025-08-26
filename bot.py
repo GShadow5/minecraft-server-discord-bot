@@ -177,9 +177,9 @@ async def _read_from_pipe(servername, channel_id, bot_instance):
                     print(discord_message)
                     await bot.loop.create_task(channel.send("Message sending..."))
                     await bot.loop.create_task(channel.send(discord_message))
-                else:
-                    # Optionally, you can log other server output to a debug channel or console
-                    print(f"Non-chat output: {line}")
+                # else:
+                #     # Optionally, you can log other server output to a debug channel or console
+                #     print(f"Non-chat output: {line}")
 
             await asyncio.sleep(0.01) # Small delay to yield control and avoid busy-waiting
 
