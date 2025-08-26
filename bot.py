@@ -259,25 +259,6 @@ async def _stop_server_internal(ctx, servername, method):
 
     active_server = None # Clear active server state
 
-async def connect_to_existing_pipe():
-    global active_server, active_server_pipe_task, chat_channel, bot
-    # Get list of servers
-    with open('servers.json', 'r') as f:
-        servers = json.load(f)
-        servers = servers['servers']
-    
-    # Get list of active screens
-    screen_cmd = "screen -ls"
-    process = subprocess.Popen(screen_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-    stdout, stderr = process.communicate()
-
-    # Check for existing pipes
-    for server in servers:
-        if server['servername'] in stdout:
-            active_server = server['servername']
-            if os.path.exists(_get_pipe_path(active_server)):
-                await _read_from_pipe(active_server, chat_channel, bot)
-                return
 
 '''
 
@@ -524,6 +505,40 @@ async def reloadregex(ctx):
             regex_list.append(re.compile(regex['match']))
             fprint_list.append(regex['capture'])
     await ctx.send("Regex reloaded.")
+
+@bot.command()
+async def connecttoexistingpipe(ctx):
+    # Get list of servers
+    with open('servers.json', 'r') as f:
+        servers = json.load(f)
+        servers = servers['servers']
+    
+    # Get list of active screens
+    screen_cmd = "screen -ls"
+    process = subprocess.Popen(screen_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    stdout, stderr = process.communicate()
+
+    # Get list of active servers
+    active_servers = []
+    for s in servers:
+        if s['servername'] in stdout:
+            active_servers.append(s)
+    if len(active_servers) == 0:
+        await ctx.send("No server is currently active.")
+        return
+    if len(active_servers) > 1:
+        await ctx.send("Multiple servers are currently active. This should not happen. Please report this to the server owner.")
+        await ctx.send(f"Currently active servers: {', '.join([s['servername'] for s in active_servers])}")
+        return
+    active_server = active_servers[0]['servername']
+    
+    # Check for existing pipes
+    if os.path.exists(_get_pipe_path(active_server)):
+        global active_server_pipe_task
+        active_server_pipe_task = asyncio.create_task(_read_from_pipe(active_server, ctx.channel.id, ctx.bot))
+        await ctx.send("Connected to existing pipe.")
+        return
+    await ctx.send("No pipe found for the active server.")
 
 @bot.command()
 async def ping(ctx):
