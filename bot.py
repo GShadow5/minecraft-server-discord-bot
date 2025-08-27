@@ -27,7 +27,7 @@ with open('config.json', 'r') as f:
     command_prefix = config['config']['command_prefix']
     for regex in config['config']['regex']:
         regex_list.append(re.compile(regex['match']))
-        fprint_list.append(regex['capture'])
+        fprint_list.append(regex['fstring'])
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -452,7 +452,7 @@ async def reloadregex(ctx):
         config = json.load(f)
         for regex in config['config']['regex']:
             regex_list.append(re.compile(regex['match']))
-            fprint_list.append(regex['capture'])
+            fprint_list.append(regex['fstring'])
     
     # Reload the processline module
     global processline

@@ -5,9 +5,8 @@
         "command_prefix": "!",
         "regex": [
             {
-                "type": "groups",
                 "match": ".*\\]: <(.*)> (.*)",
-                "capture": "**[{groups[0]}]**: {groups[1]}"
+                "fstring": "**[{groups[0]}]**: {groups[1]}"
             }
         ]
     }
