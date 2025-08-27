@@ -39,13 +39,7 @@ active_server_pipe_task = None # To hold the asyncio task that reads from the pi
 
 
 '''
-
-
-
         # --- Named Pipe Functions ---
-
-
-        
 '''
 
 def _get_pipe_path(servername):
@@ -77,8 +71,6 @@ async def _delete_named_pipe(servername):
             print(f"Named pipe deleted: {pipe_path}")
         except OSError as e:
             print(f"Error deleting named pipe {pipe_path}: {e}")
-
-# --- Pipe Reading and Parsing Task ---
 
 async def _read_from_pipe(servername, channel_id, bot_instance):
     """
@@ -199,7 +191,7 @@ async def _stop_server_internal(ctx, servername, method):
         await ctx.send(f"No server '{servername}' is currently active, or a different server is running.")
         return
 
-    await ctx.send(f"Attempting to {method} server '{servername}'...")
+    await ctx.send(f"Attempting to {method} server '{servername}'. Please wait to send any other commands...")
 
     if method == "stop":
         command_to_send = 'stop\n'
@@ -249,16 +241,12 @@ async def _stop_server_internal(ctx, servername, method):
     active_server = None # Clear active server state
 
 
+
+
+
+
 '''
-
-
-
-
     Handle events (messages mostly)
-
-
-
-
 '''
 @bot.event
 async def on_ready():
@@ -269,15 +257,19 @@ async def on_message(message):
     print(f'Message from {message.author}: {message.content}')
     if message.author == bot.user:
         return
+    # If the message is in the chat channel and not a command, send it to Minecraft
     if message.channel.name == chat_channel and not message.content.startswith(command_prefix):
         if not active_server:
             await message.channel.send("No server is currently active.")
             return
         await send_message(message)
+
+    # If the message is in the command channel and is a command, process it as a command
     if message.channel.name == command_channel and message.content.startswith(command_prefix):
         await bot.process_commands(message)
 
 async def send_message(message):
+    ''' Send a message to Minecraft by sending it to the screen session. '''
     global active_server
     if not active_server:
         await message.channel.send("No server is currently active.")
@@ -290,16 +282,9 @@ async def send_message(message):
 
 
 
+
 '''
-
-
-
-
     Handle commands
-
-
-
-
 '''
 @bot.command()
 async def startserver(ctx, *args):
@@ -355,8 +340,6 @@ async def startserver(ctx, *args):
         f"screen -dmS {servername} bash -c \"{server['startcommand']} | tee {pipe_path}\""
     )
 
-    #command = f"cd {path} && screen -dmS {servername} {server['startcommand']}"
-    #print(f"Running command: {command}")
     print(f"Running screen command: {screen_cmd}")
     try:
         subprocess.Popen(screen_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
@@ -395,7 +378,7 @@ async def stopserver(ctx):
 
 @bot.command()
 async def command(ctx, *args):
-    ''' [command] : Send a command to the server '''
+    ''' [command] : Send a command to the server (admin only) '''
     global active_server
     # Check if the user is an admin
     if not ctx.author.guild_permissions.administrator:
@@ -446,7 +429,7 @@ async def list(ctx):
 
 @bot.command()
 async def forcestopserver(ctx):
-    ''' Force stop the server by sending keyboard interrupt '''
+    ''' Force stop the server by sending keyboard interrupt (admin only) '''
     global active_server
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You don't have permission to run this command.")
@@ -458,7 +441,7 @@ async def forcestopserver(ctx):
 
 @bot.command()
 async def reloadregex(ctx):
-    ''' Reload the regex for the server '''
+    ''' Reload the regex for the server output (admin only) '''
     global regex_list, fprint_list
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You don't have permission to run this command.")
@@ -475,7 +458,7 @@ async def reloadregex(ctx):
     global processline
     processline = reload(processline)
     testresults = processline.testreload()
-    await ctx.send("Regex reloaded, test result: " + testresults)
+    await ctx.send("Regex reloaded, test function returned: " + testresults)
 
 @bot.command()
 async def ping(ctx):
