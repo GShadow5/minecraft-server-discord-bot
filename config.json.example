@@ -6,13 +6,8 @@
         "regex": [
             {
                 "type": "groups",
-                "match": "\\[(.*?)\\].*INFO.*\\]: <(.*)> (.*)",
-                "capture": "**[{groups[1]}]**: {groups[2]}"
-            },
-            {
-                "type": "groups",
-                "match": "\\[(.*?)\\].*WARN.*?\\] \\[(.*?)\\]: (.*)",
-                "capture": "**[{groups[1]}]**: {groups[2]}"
+                "match": ".*\\]: <(.*)> (.*)",
+                "capture": "**[{groups[0]}]**: {groups[1]}"
             }
         ]
     }

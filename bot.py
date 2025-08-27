@@ -7,6 +7,8 @@ from discord.ext import commands
 import subprocess
 from dotenv import load_dotenv
 import time
+import processline
+from importlib import reload
 
 load_dotenv()
 
@@ -166,20 +168,7 @@ async def _read_from_pipe(servername, channel_id, bot_instance):
             # print(f"Raw server output: {line}") # Debugging raw output
             global regex_list
             global fprint_list
-            for i in range(len(regex_list)):
-                match = regex_list[i].match(line)
-                if match:
-                    groups = match.groups()
-                    discord_message = fprint_list[i].format(groups=groups)
-                    # Limit message length for Discord if necessary
-                    if len(discord_message) > 2000:
-                        discord_message = discord_message[:1997] + "..."
-                    print(discord_message)
-                    await bot.loop.create_task(channel.send("Message sending..."))
-                    await bot.loop.create_task(channel.send(discord_message))
-                # else:
-                #     # Optionally, you can log other server output to a debug channel or console
-                #     print(f"Non-chat output: {line}")
+            await processline.processline(line, regex_list, fprint_list, bot_instance, channel)
 
             await asyncio.sleep(0.01) # Small delay to yield control and avoid busy-waiting
 
@@ -481,41 +470,12 @@ async def reloadregex(ctx):
         for regex in config['config']['regex']:
             regex_list.append(re.compile(regex['match']))
             fprint_list.append(regex['capture'])
-    await ctx.send("Regex reloaded.")
-
-@bot.command()
-async def connecttoexistingpipe(ctx):
-    # Get list of servers
-    with open('servers.json', 'r') as f:
-        servers = json.load(f)
-        servers = servers['servers']
     
-    # Get list of active screens
-    screen_cmd = "screen -ls"
-    process = subprocess.Popen(screen_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-    stdout, stderr = process.communicate()
-
-    # Get list of active servers
-    active_servers = []
-    for s in servers:
-        if s['servername'] in stdout:
-            active_servers.append(s)
-    if len(active_servers) == 0:
-        await ctx.send("No server is currently active.")
-        return
-    if len(active_servers) > 1:
-        await ctx.send("Multiple servers are currently active. This should not happen. Please report this to the server owner.")
-        await ctx.send(f"Currently active servers: {', '.join([s['servername'] for s in active_servers])}")
-        return
-    active_server = active_servers[0]['servername']
-    
-    # Check for existing pipes
-    if os.path.exists(_get_pipe_path(active_server)):
-        global active_server_pipe_task
-        active_server_pipe_task = asyncio.create_task(_read_from_pipe(active_server, ctx.channel.id, ctx.bot))
-        await ctx.send("Connected to existing pipe.")
-        return
-    await ctx.send("No pipe found for the active server.")
+    # Reload the processline module
+    global processline
+    processline = reload(processline)
+    testresults = processline.testreload()
+    await ctx.send("Regex reloaded, test result: " + testresults)
 
 @bot.command()
 async def ping(ctx):
