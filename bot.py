@@ -314,12 +314,7 @@ async def send_message(message):
 '''
 @bot.command()
 async def startserver(ctx, *args):
-    '''
-    Start a server
-    args:
-        servername: The name of the server
-
-    '''
+    ''' [server name] : Start a server '''
     global active_server, active_server_pipe_task
     # Validate and get the server name
     if len(args) != 1:
@@ -402,10 +397,7 @@ async def startserver(ctx, *args):
 
 @bot.command()
 async def stopserver(ctx):
-    '''
-    Stop the server by sending 'stop' to the server
-
-    '''
+    ''' Stop the server by sending 'stop' to the server '''
     global active_server
     if active_server is None:
         await ctx.send("No server is currently active.")
@@ -414,12 +406,7 @@ async def stopserver(ctx):
 
 @bot.command()
 async def command(ctx, *args):
-    '''
-    Send a command to the server
-    args:
-        command: The command to send
-
-    '''
+    ''' [command] : Send a command to the server '''
     global active_server
     # Check if the user is an admin
     if not ctx.author.guild_permissions.administrator:
@@ -432,10 +419,7 @@ async def command(ctx, *args):
 
 @bot.command()
 async def list(ctx):
-    '''
-    Lists currently running server and available servers
-
-    '''
+    ''' Lists currently running server and available servers '''
     global active_server
     # Load server data from json
     servers = None
@@ -473,10 +457,7 @@ async def list(ctx):
 
 @bot.command()
 async def forcestopserver(ctx):
-    '''
-    Force stop the server by sending keyboard interrupt
-
-    '''
+    ''' Force stop the server by sending keyboard interrupt '''
     global active_server
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You don't have permission to run this command.")
@@ -488,10 +469,7 @@ async def forcestopserver(ctx):
 
 @bot.command()
 async def reloadregex(ctx):
-    '''
-    Reload the regex for the server
-
-    '''
+    ''' Reload the regex for the server '''
     global regex_list, fprint_list
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You don't have permission to run this command.")
@@ -541,17 +519,12 @@ async def connecttoexistingpipe(ctx):
 
 @bot.command()
 async def ping(ctx):
-    '''
-    Ping the bot
-
-    '''
+    ''' Ping the bot '''
     await ctx.send('Pong!')
 
 @bot.command()
 async def botstop(ctx):
-    '''
-    Stop the bot and clean up
-    '''
+    ''' Stop the bot and clean up '''
     global active_server, active_server_pipe_task
 
     if active_server is not None:
