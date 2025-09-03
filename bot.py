@@ -428,6 +428,16 @@ async def list(ctx):
     await ctx.send(listofservers)
 
 @bot.command()
+async def listplayers(ctx):
+    ''' Lists the players in the server '''
+    global active_server
+    if active_server is None:
+        await ctx.send("No server is currently active.")
+        return
+    subprocess.Popen(f"screen -S {active_server} -p 0 -X stuff 'list\n'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    await ctx.send("Please wait, listing players may take a second...")
+
+@bot.command()
 async def forcestopserver(ctx):
     ''' Force stop the server by sending keyboard interrupt (admin only) '''
     global active_server
