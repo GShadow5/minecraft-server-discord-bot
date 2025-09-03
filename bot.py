@@ -188,10 +188,10 @@ async def _stop_server_internal(ctx, servername, method):
         return
     
     if active_server is None or active_server != servername:
-        await ctx.send(f"No server '{servername}' is currently active, or a different server is running.")
+        await ctx.send(f"No server `{servername}` is currently active, or a different server is running.")
         return
 
-    await ctx.send(f"Attempting to {method} server '{servername}'. Please wait to send any other commands...")
+    await ctx.send(f"Attempting to {method} server `{servername}`. Please wait to send any other commands...")
 
     if method == "stop":
         command_to_send = 'stop\n'
@@ -357,7 +357,7 @@ async def startserver(ctx, *args):
         await _delete_named_pipe(servername)
         return
 
-    await ctx.send(f'Started server in screen session: {servername}')
+    await ctx.send(f'Started server in screen session: `{servername}`')
     print(f'Started server in screen session: {servername}')
     print(f'stdout: {stdout}')
 
@@ -416,15 +416,15 @@ async def list(ctx):
         active_server = None
     elif len(currentservers) > 1:
         await ctx.send("Multiple servers are currently active. This should not happen. Please report this to the server owner.")
-        await ctx.send(f"Currently active servers: {', '.join([s['servername'] for s in currentservers])}")
+        await ctx.send(f"Currently active servers: ```{', '.join([s['servername'] for s in currentservers])}```")
         active_server = None
     else:
-        await ctx.send(f"Server {currentservers[0]['servername']} is currently active.")
+        await ctx.send(f"Server `{currentservers[0]['servername']}` is currently active.")
     if len(currentservers) > 0 and currentservers[0]['servername'] != active_server:
         active_server = currentservers[0]['servername']
     
     # List the available servers
-    listofservers = 'Available servers: '+ "\n".join([s["servername"] for s in servers])
+    listofservers = 'Available servers:\n' + "\n".join([('`' + s['servername'] + '` - ' + s['description']) for s in servers])
     await ctx.send(listofservers)
 
 @bot.command()
