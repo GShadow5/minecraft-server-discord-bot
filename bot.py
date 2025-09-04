@@ -209,12 +209,16 @@ async def _stop_server_internal(ctx, servername, method):
     except Exception as e:
         await ctx.send(f"Failed to send stop command to screen: {e}")
         # Even if command fails, attempt cleanup
+
+    # Check if the server is still running every second until the server stops or the timeout is reached
+    for i in range(30):
+        check_screen_cmd = f"screen -ls | grep {servername}"
+        process = subprocess.Popen(check_screen_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        stdout, stderr = process.communicate()
+        if not stdout:
+            break
+        await asyncio.sleep(1)
     
-    # Give the server some time to shut down gracefully
-    if method == "stop":
-        await asyncio.sleep(15) # Minecraft servers can take a while to save and stop
-    else: # forcestop
-        await asyncio.sleep(5) # Give it a few seconds for Ctrl+C to register
 
     # --- Cleanup ---
     if active_server_pipe_task:
