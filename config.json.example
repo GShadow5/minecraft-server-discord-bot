@@ -1,12 +1,28 @@
 {
     "config": {
-        "chat_channel": "testchatchannel",
-        "command_channel": "testchatchannel",
+        "chat_channel": "minecraft",
+        "command_channel": "minecraft",
         "command_prefix": "!",
         "regex": [
             {
                 "match": ".*\\]: <(.*)> (.*)",
-                "fstring": "**[{groups[0]}]**: {groups[1]}"
+                "fstring": "**[{groups[0]}]**: {groups[1]}",
+                "description": "Passes chat from minecraft to discord"
+            },
+            {
+                "match": ".*\\[minecraft/DedicatedServer\\]: (.*) (joined the game|left the game)",
+                "fstring": "**{groups[0]} {groups[1]}**",
+                "description": "Passes join/leave messages from minecraft to discord"
+            },
+            {
+                "match": ".*\\[minecraft/DedicatedServer\\]: There are (.*) players online: (.*)",
+                "fstring": "There are {groups[0]} players online: **{groups[1]}**",
+                "description": "Passes player count from minecraft to discord (for listplayers command)"
+            },
+            {
+                "match": ".*\\[minecraft/DedicatedServer\\]: Done (.*)! For help, type \"help\"",
+                "fstring": "**Server ready!**",
+                "description": "Notifies discord when server has started"
             }
         ]
     }

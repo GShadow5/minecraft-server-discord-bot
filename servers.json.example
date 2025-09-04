@@ -3,11 +3,13 @@
         {
             "path": "/path/to/server/folder",
             "servername": "example",
+            "description": "Example server (1.21.1)",
             "startcommand": "screen -S example java -Xmx1024M -Xms512M -jar /path/to/server/spigot-1.18.2.jar nogui"
         },
         {
             "path": "/path/to/server/folder",
             "servername": "example2",
+            "description": "Example server (1.18.2)",
             "startcommand": "examplestartscript.sh"
         }
     ]
